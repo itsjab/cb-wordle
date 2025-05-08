@@ -3,7 +3,9 @@
   "name": "cb-wordle",
   "main": "src/worker.tsx",
   "compatibility_date": "2024-09-23",
-  "compatibility_flags": ["nodejs_compat"],
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
   "assets": {
     "binding": "ASSETS"
   },
@@ -19,13 +21,15 @@
     ]
   },
   "vars": {
-    "WEBAUTHN_APP_NAME": "__change_me__",
-    "APP_NAME": "cb-wordle",
+    "WEBAUTHN_APP_NAME": "cb-wordle",
+    "APP_NAME": "cb-wordle"
   },
   "migrations": [
     {
       "tag": "v1",
-      "new_sqlite_classes": ["SessionDurableObject"]
+      "new_sqlite_classes": [
+        "SessionDurableObject"
+      ]
     }
   ],
   "d1_databases": [

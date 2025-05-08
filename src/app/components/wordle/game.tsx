@@ -79,7 +79,6 @@ export default function WordleGame({ gameData }: { gameData: GameData }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const [jab, setJab] = useState<Jab | null>(null);
   const [jabCount, setJabCount] = useState(0);
 
   const submitGuessToServer = async (row: number) => {
@@ -211,7 +210,7 @@ export default function WordleGame({ gameData }: { gameData: GameData }) {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-white p-4">
+    <div className="flex flex-col items-center justify-end min-h-svh bg-white">
       {/* Add the game status message and reset button to the return statement
       Add this after the game board div and before the keyboard div: */}
       {gameData.status !== "active" && (
@@ -223,11 +222,6 @@ export default function WordleGame({ gameData }: { gameData: GameData }) {
           >
             {gameData.status === "won" ? "You won! 🎉" : "Game over!"}
           </div>
-          {/* {gameData.status === "lost" && (
-            <div className="text-lg mb-4">
-              The word was <span className="font-bold">{targetWordReveal}</span>
-            </div>
-          )} */}
           <Button onClick={handleGameReset}>Play Again</Button>
         </div>
       )}
@@ -235,7 +229,7 @@ export default function WordleGame({ gameData }: { gameData: GameData }) {
       <div className="mb-8">
         {/* Game board */}
         {board.map((row, rowIndex) => (
-          <div key={rowIndex} className="flex mb-2">
+          <div key={rowIndex} className="flex">
             {row.map((cell, colIndex) => (
               <div
                 key={`${rowIndex}-${colIndex}`}
@@ -253,12 +247,12 @@ export default function WordleGame({ gameData }: { gameData: GameData }) {
 
       {/* Keyboard */}
       <div className="w-full max-w-md">
-        <div className="flex justify-center mb-2">
+        <div className="flex justify-around mb-1">
           {["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"].map((key) => (
             <button
               key={key}
               onClick={() => handleKeyPress(key)}
-              className={`w-10 h-14 m-0.5 rounded-md flex items-center justify-center font-bold text-xl transition-colors ${getKeyColor(
+              className={`w-10 h-12 m-0.5 rounded-md flex items-center justify-center font-bold text-xl transition-colors ${getKeyColor(
                 key
               )} ${getKeyColor(key)}`}
             >
@@ -266,12 +260,12 @@ export default function WordleGame({ gameData }: { gameData: GameData }) {
             </button>
           ))}
         </div>
-        <div className="flex justify-center mb-2">
+        <div className="flex justify-around mb-1">
           {["A", "S", "D", "F", "G", "H", "J", "K", "L"].map((key) => (
             <button
               key={key}
               onClick={() => handleKeyPress(key)}
-              className={`w-10 h-14 m-0.5 rounded-md flex items-center justify-center font-bold text-xl transition-colors ${getKeyColor(
+              className={`w-10 h-12 m-0.5 rounded-md flex items-center justify-center font-bold text-xl transition-colors ${getKeyColor(
                 key
               )} ${getKeyColor(key)}`}
             >
@@ -282,7 +276,7 @@ export default function WordleGame({ gameData }: { gameData: GameData }) {
         <div className="flex justify-center">
           <button
             onClick={() => handleKeyPress("ENTER")}
-            className="px-2 h-14 bg-blue-500 m-0.5 rounded-md flex items-center justify-center font-bold text-sm"
+            className="text-xs px-2 h-12 bg-blue-500 m-0.5 rounded-md flex items-center justify-center font-bold"
           >
             ENTER
           </button>
@@ -290,7 +284,7 @@ export default function WordleGame({ gameData }: { gameData: GameData }) {
             <button
               key={key}
               onClick={() => handleKeyPress(key)}
-              className={`w-10 h-14 m-0.5 rounded-md flex items-center justify-center font-bold text-xl transition-colors ${getKeyColor(
+              className={`w-10 h-12 m-0.5 rounded-md flex items-center justify-center font-bold text-xl transition-colors ${getKeyColor(
                 key
               )} ${getKeyColor(key)}`}
             >
@@ -299,7 +293,7 @@ export default function WordleGame({ gameData }: { gameData: GameData }) {
           ))}
           <button
             onClick={() => handleKeyPress("BACKSPACE")}
-            className="w-16 h-14 bg-blue-500 m-0.5 rounded-md flex items-center justify-center font-bold"
+            className="h-12 px-2 bg-blue-500 m-0.5 rounded-md flex items-center justify-center font-bold"
           >
             <Delete size={24} />
           </button>
