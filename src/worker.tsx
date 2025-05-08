@@ -47,8 +47,7 @@ export default defineApp([
     }
   },
   render(Document, [
-    route("/", () => new Response("Hello, World!")),
-    route("/protected", [
+    route("/", [
       ({ ctx }) => {
         if (!ctx.user) {
           return new Response(null, {
