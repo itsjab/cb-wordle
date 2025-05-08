@@ -5,12 +5,16 @@ import { Delete } from "lucide-react";
 import { submitGuess, archiveGame } from "@/app/pages/wordle/functions";
 import { Button } from "../ui/button";
 
+import { Jab } from "@prisma/client";
+import { toast } from "sonner";
+
 type CellState = "correct" | "present" | "absent" | "empty";
 type GuessResult = { letter: string; state: string };
 
 type GameData = {
   id: string;
   status: string;
+  jabs: Jab[];
   guesses: Array<{
     word: string;
     result: Array<GuessResult>;
@@ -18,15 +22,11 @@ type GameData = {
 };
 
 export default function WordleGame({ gameData }: { gameData: GameData }) {
-  console.log("Game Data:", gameData);
-  // Initialize board from gameData
   const [board, setBoard] = useState(() => {
-    // Create empty board
     const emptyBoard = Array(6)
       .fill(null)
       .map(() => Array(5).fill(""));
 
-    // Fill in the guesses from gameData
     gameData.guesses.forEach((guess, rowIndex) => {
       const letters = guess.word.split("");
       letters.forEach((letter, colIndex) => {
@@ -37,18 +37,14 @@ export default function WordleGame({ gameData }: { gameData: GameData }) {
     return emptyBoard;
   });
 
-  // Set current row based on number of guesses
   const [currentRow, setCurrentRow] = useState(gameData.guesses.length);
   const [currentCol, setCurrentCol] = useState(0);
 
-  // Initialize cell states from gameData
   const [cellStates, setCellStates] = useState<CellState[][]>(() => {
-    // Create empty cell states
     const emptyCellStates = Array(6)
       .fill(null)
       .map(() => Array(5).fill("empty" as CellState));
 
-    // Fill in the cell states from gameData
     gameData.guesses.forEach((guess, rowIndex) => {
       guess.result.forEach((result, colIndex) => {
         emptyCellStates[rowIndex][colIndex] = result.state as CellState;
@@ -58,7 +54,6 @@ export default function WordleGame({ gameData }: { gameData: GameData }) {
     return emptyCellStates;
   });
 
-  // Initialize key states based on cell states
   const [keyStates, setKeyStates] = useState<Record<string, CellState>>(() => {
     const initialKeyStates: Record<string, CellState> = {};
 
@@ -67,7 +62,6 @@ export default function WordleGame({ gameData }: { gameData: GameData }) {
         const letter = guess.word[index];
         const state = result.state as CellState;
 
-        // Only update if the new state is "better" than the existing one
         if (
           !initialKeyStates[letter] ||
           (initialKeyStates[letter] === "absent" &&
@@ -82,34 +76,29 @@ export default function WordleGame({ gameData }: { gameData: GameData }) {
     return initialKeyStates;
   });
 
-  // State for loading status during API calls
   const [isSubmitting, setIsSubmitting] = useState(false);
-  // State for error messages
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Submit guess to the server
+  const [jab, setJab] = useState<Jab | null>(null);
+  const [jabCount, setJabCount] = useState(0);
+
   const submitGuessToServer = async (row: number) => {
     const guess = board[row].join("");
     if (guess.length !== 5) return;
 
-    // Set loading state
     setIsSubmitting(true);
     setErrorMessage(null);
 
     try {
-      // Call the server function to submit the guess
       const updatedGame = await submitGuess(gameData.id, guess);
 
-      // Update the game state with the server response
       if (updatedGame) {
-        // Get the latest guess result
         const latestGuess = updatedGame.guesses[updatedGame.guesses.length - 1];
         const guessResult = latestGuess.result as Array<{
           letter: string;
           state: string;
         }>;
 
-        // Update cell states for the current row
         const newCellStates = [...cellStates];
         guessResult.forEach(
           (result: { letter: string; state: string }, index: number) => {
@@ -137,13 +126,19 @@ export default function WordleGame({ gameData }: { gameData: GameData }) {
           }
         );
         setKeyStates(newKeyStates);
-
-        // Move to the next row
         setCurrentRow(currentRow + 1);
         setCurrentCol(0);
+
+        if (updatedGame.status === "active") {
+          toast.message(gameData.jabs[jabCount].headline, {
+            description: gameData.jabs[jabCount].description,
+          });
+          const newJabCount =
+            jabCount < gameData.jabs.length - 1 ? jabCount + 1 : 0;
+          setJabCount(newJabCount);
+        }
       }
     } catch (error) {
-      // Handle errors
       console.error("Error submitting guess:", error);
       setErrorMessage(
         error instanceof Error ? error.message : "An error occurred"

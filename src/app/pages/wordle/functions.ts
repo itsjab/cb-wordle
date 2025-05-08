@@ -157,6 +157,18 @@ export async function submitGuess(gameId: string, guessWord: string) {
   });
 }
 
+export async function getJabs() {
+  const { ctx } = requestInfo;
+
+  if (!ctx.user) {
+    throw new Error("User not authenticated");
+  }
+
+  const jabs = await db.jab.findMany({ take: 6 });
+
+  return jabs;
+}
+
 function calculateGuessResult(
   guessWord: string,
   targetWord: string

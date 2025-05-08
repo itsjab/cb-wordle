@@ -26,7 +26,7 @@ model User {
 }
 
 model Credential {
-  id            String   @id @default(uuid()) // Internal DB ID
+  id            String   @id @default(uuid())
   userId        String   @unique // Every credential is linked to a specific user
   user          User     @relation(fields: [userId], references: [id])
   createdAt     DateTime @default(now())
@@ -39,7 +39,7 @@ model Credential {
 }
 
 model Game {
-  id            String   @id @default(uuid()) // Internal DB ID
+  id            String   @id @default(uuid())
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   status        String
@@ -51,7 +51,7 @@ model Game {
 }
 
 model Guess {
-  id        String   @id @default(uuid()) // Internal DB ID
+  id        String   @id @default(uuid())
   createdAt DateTime @default(now())
   game      Game     @relation(fields: [gameId], references: [id])
   gameId    String
@@ -60,4 +60,11 @@ model Guess {
   result    Json     // Per-letter result, e.g. [{"letter":"A","state":"correct"}, ...]
   
   @@index([gameId])
+}
+
+model Jab {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  headline  String
+  description String
 }
