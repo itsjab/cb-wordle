@@ -1,79 +1,122 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { startRegistration } from "@simplewebauthn/browser";
 import {
-  startAuthentication,
-  startRegistration,
-} from "@simplewebauthn/browser";
-import {
-  finishPasskeyLogin,
   finishPasskeyRegistration,
-  startPasskeyLogin,
   startPasskeyRegistration,
 } from "./functions";
+
+import { Button } from "@/app/components/ui/button";
+import { Input } from "@/app/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/app/components/ui/card";
+import { KeyRound } from "lucide-react";
 
 export function Login() {
   const [username, setUsername] = useState("");
   const [result, setResult] = useState("");
+  const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
-
-  const passkeyLogin = async () => {
-    // 1. Get a challenge from the worker
-    const options = await startPasskeyLogin();
-
-    // 2. Ask the browser to sign the challenge
-    const login = await startAuthentication({ optionsJSON: options });
-
-    // 3. Give the signed challenge to the worker to finish the login process
-    const success = await finishPasskeyLogin(login);
-
-    if (!success) {
-      setResult("Login failed");
-    } else {
-      setResult("Login successful!");
-    }
-  };
+  const [isRegistering, setIsRegistering] = useState(false);
 
   const passkeyRegister = async () => {
-    // 1. Get a challenge from the worker
-    const options = await startPasskeyRegistration(username);
+    try {
+      setIsRegistering(true);
+      setError("");
 
-    // 2. Ask the browser to sign the challenge
-    const registration = await startRegistration({ optionsJSON: options });
+      const options = await startPasskeyRegistration(username);
 
-    // 3. Give the signed challenge to the worker to finish the registration process
-    const success = await finishPasskeyRegistration(username, registration);
+      const registration = await startRegistration({ optionsJSON: options });
 
-    if (!success) {
-      setResult("Registration failed");
-    } else {
-      setResult("Registration successful!");
+      const success = await finishPasskeyRegistration(username, registration);
+
+      if (!success) {
+        setError("Registration failed. Please try again.");
+        setResult("Registration failed");
+      } else {
+        setResult("Registration successful!");
+        // Redirect to home page after successful registration
+        window.location.href = "/";
+      }
+    } catch (err) {
+      console.error("Registration error:", err);
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Registration failed. Please try again."
+      );
+    } finally {
+      setIsRegistering(false);
     }
   };
 
-  const handlePerformPasskeyLogin = () => {
-    startTransition(() => void passkeyLogin());
-  };
+  const handlePerformPasskeyRegister = (e: React.FormEvent) => {
+    e.preventDefault();
 
-  const handlePerformPasskeyRegister = () => {
+    if (!username.trim()) {
+      setError("Please enter a username");
+      return;
+    }
+
     startTransition(() => void passkeyRegister());
   };
 
   return (
-    <>
-      <input
-        type="text"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-        placeholder="Username"
-      />
-      <button onClick={handlePerformPasskeyLogin} disabled={isPending}>
-        {isPending ? <>...</> : "Login with passkey"}
-      </button>
-      <button onClick={handlePerformPasskeyRegister} disabled={isPending}>
-        {isPending ? <>...</> : "Register with passkey"}
-      </button>
-      {result && <div>{result}</div>}
-    </>
+    <div className="flex items-center justify-center min-h-screen bg-gray-50">
+      <Card className="w-full max-w-md">
+        <CardHeader className="space-y-1 text-center">
+          <CardTitle className="text-3xl font-bold tracking-tight">
+            Wordle
+          </CardTitle>
+          <CardDescription>Create an account to start playing</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handlePerformPasskeyRegister} className="space-y-4">
+            <div className="space-y-2">
+              <Input
+                id="username"
+                placeholder="Choose a username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="w-full"
+                autoComplete="username webauthn"
+                disabled={isPending}
+              />
+              {error && <p className="text-sm text-red-500">{error}</p>}
+              {result && <p className="text-sm text-green-500">{result}</p>}
+            </div>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={isPending || isRegistering}
+            >
+              {isPending
+                ? "Processing..."
+                : isRegistering
+                ? "Setting up passkey..."
+                : "Create account"}
+            </Button>
+          </form>
+        </CardContent>
+        <CardFooter className="flex flex-col space-y-4">
+          <div className="flex items-center justify-center w-full">
+            <div className="border-t border-gray-200 flex-grow mr-2" />
+            <span className="text-xs text-gray-500">Secured with</span>
+            <div className="border-t border-gray-200 flex-grow ml-2" />
+          </div>
+          <div className="flex items-center justify-center text-sm text-gray-600">
+            <KeyRound className="h-4 w-4 mr-2" />
+            <span>Passkey authentication</span>
+          </div>
+        </CardFooter>
+      </Card>
+    </div>
   );
 }
