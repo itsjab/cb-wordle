@@ -42,7 +42,8 @@ model Game {
   id            String   @id @default(uuid()) // Internal DB ID
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-  status        String   // Game status (e.g., "in-progress", "completed")
+  status        String
+  isArchived    Boolean  @default(false)
   userId        String 
   user          User     @relation(fields: [userId], references: [id])
   wordle        String   // The word to be guessed

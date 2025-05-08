@@ -4,7 +4,6 @@ import { getOrCreateActiveGame } from "./functions";
 export async function WordlePage() {
   const game = await getOrCreateActiveGame();
 
-  // Extract game data to pass to the client component
   const gameData = {
     id: game.id,
     status: game.status,

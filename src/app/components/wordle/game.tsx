@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { X } from "lucide-react";
-import { submitGuess } from "@/app/pages/wordle/functions";
+import { Delete } from "lucide-react";
+import { submitGuess, archiveGame } from "@/app/pages/wordle/functions";
+import { Button } from "../ui/button";
 
 type CellState = "correct" | "present" | "absent" | "empty";
 type GuessResult = { letter: string; state: string };
@@ -17,6 +18,7 @@ type GameData = {
 };
 
 export default function WordleGame({ gameData }: { gameData: GameData }) {
+  console.log("Game Data:", gameData);
   // Initialize board from gameData
   const [board, setBoard] = useState(() => {
     // Create empty board
@@ -80,11 +82,6 @@ export default function WordleGame({ gameData }: { gameData: GameData }) {
     return initialKeyStates;
   });
 
-  // Set game over if status is "won" or "lost"
-  const [gameOver, setGameOver] = useState(
-    gameData.status === "won" || gameData.status === "lost"
-  );
-
   // State for loading status during API calls
   const [isSubmitting, setIsSubmitting] = useState(false);
   // State for error messages
@@ -141,15 +138,6 @@ export default function WordleGame({ gameData }: { gameData: GameData }) {
         );
         setKeyStates(newKeyStates);
 
-        // Check if the game is over
-        if (updatedGame.status === "won") {
-          setGameOver(true);
-          alert("Congratulations! You won!");
-        } else if (updatedGame.status === "lost") {
-          setGameOver(true);
-          alert("Game over! You've used all your guesses.");
-        }
-
         // Move to the next row
         setCurrentRow(currentRow + 1);
         setCurrentCol(0);
@@ -167,7 +155,7 @@ export default function WordleGame({ gameData }: { gameData: GameData }) {
 
   const handleKeyPress = (key: string) => {
     // Prevent input if game is over or submitting
-    if (gameOver || isSubmitting || currentRow >= 6) return;
+    if (gameData.status !== "active" || isSubmitting || currentRow >= 6) return;
 
     // Clear any previous error message
     if (errorMessage) setErrorMessage(null);
@@ -191,60 +179,61 @@ export default function WordleGame({ gameData }: { gameData: GameData }) {
     }
   };
 
-  const getCellBackground = (rowIndex: number, colIndex: number) => {
+  const getCellColor = (rowIndex: number, colIndex: number) => {
     const state = cellStates[rowIndex][colIndex];
     switch (state) {
       case "correct":
-        return "bg-green-500";
+        return "bg-green-500 text-white";
       case "present":
-        return "bg-yellow-500";
+        return "bg-yellow-500 text-black";
       case "absent":
-        return "bg-gray-500";
+        return "bg-gray-500 text-white";
       default:
-        return "bg-white";
+        return "bg-white text-black";
     }
   };
 
   // Get the background color for a keyboard key
-  const getKeyBackground = (key: string) => {
+  const getKeyColor = (key: string) => {
     const state = keyStates[key];
     switch (state) {
       case "correct":
-        return "bg-green-500";
+        return "bg-green-500 text-white";
       case "present":
-        return "bg-yellow-500";
+        return "bg-yellow-500 text-black";
       case "absent":
-        return "bg-gray-500";
+        return "bg-gray-500 text-white";
       default:
-        return "bg-gray-200";
+        return "bg-gray-200 text-gray-500";
     }
   };
 
-  // Get the text color for a cell or key
-  const getTextColor = (background: string) => {
-    return background === "bg-white" ? "text-black" : "text-white";
+  // To ensure the new game is loaded, we must reload the page after starting a new game.
+  // This is necessary because the game data is fetched on the server and passed as props.
+  const handleGameReset = async () => {
+    await archiveGame(gameData.id);
+    window.location.reload();
   };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-white p-4">
-      {/* Game status */}
+      {/* Add the game status message and reset button to the return statement
+      Add this after the game board div and before the keyboard div: */}
       {gameData.status !== "active" && (
-        <div className="mb-4 p-2 bg-blue-100 text-blue-800 rounded">
-          Game status: {gameData.status}
-        </div>
-      )}
-
-      {/* Error message */}
-      {errorMessage && (
-        <div className="mb-4 p-2 bg-red-100 text-red-800 rounded">
-          {errorMessage}
-        </div>
-      )}
-
-      {/* Loading indicator */}
-      {isSubmitting && (
-        <div className="mb-4 p-2 bg-gray-100 text-gray-800 rounded">
-          Submitting guess...
+        <div className="mb-8 text-center">
+          <div
+            className={`text-2xl font-bold mb-2 ${
+              gameData.status === "won" ? "text-green-600" : "text-red-600"
+            }`}
+          >
+            {gameData.status === "won" ? "You won! 🎉" : "Game over!"}
+          </div>
+          {/* {gameData.status === "lost" && (
+            <div className="text-lg mb-4">
+              The word was <span className="font-bold">{targetWordReveal}</span>
+            </div>
+          )} */}
+          <Button onClick={handleGameReset}>Play Again</Button>
         </div>
       )}
 
@@ -255,10 +244,10 @@ export default function WordleGame({ gameData }: { gameData: GameData }) {
             {row.map((cell, colIndex) => (
               <div
                 key={`${rowIndex}-${colIndex}`}
-                className={`w-14 h-14 border border-gray-300 m-0.5 flex items-center justify-center text-2xl font-bold transition-colors ${getCellBackground(
+                className={`w-14 h-14 border border-gray-900 m-0.5 flex items-center justify-center text-2xl font-bold transition-colors ${getCellColor(
                   rowIndex,
                   colIndex
-                )} ${getTextColor(getCellBackground(rowIndex, colIndex))}`}
+                )} ${getCellColor(rowIndex, colIndex)}`}
               >
                 {cell}
               </div>
@@ -274,9 +263,9 @@ export default function WordleGame({ gameData }: { gameData: GameData }) {
             <button
               key={key}
               onClick={() => handleKeyPress(key)}
-              className={`w-10 h-14 m-0.5 rounded-md flex items-center justify-center font-bold text-xl transition-colors ${getKeyBackground(
+              className={`w-10 h-14 m-0.5 rounded-md flex items-center justify-center font-bold text-xl transition-colors ${getKeyColor(
                 key
-              )} ${getTextColor(getKeyBackground(key))}`}
+              )} ${getKeyColor(key)}`}
             >
               {key}
             </button>
@@ -287,9 +276,9 @@ export default function WordleGame({ gameData }: { gameData: GameData }) {
             <button
               key={key}
               onClick={() => handleKeyPress(key)}
-              className={`w-10 h-14 m-0.5 rounded-md flex items-center justify-center font-bold text-xl transition-colors ${getKeyBackground(
+              className={`w-10 h-14 m-0.5 rounded-md flex items-center justify-center font-bold text-xl transition-colors ${getKeyColor(
                 key
-              )} ${getTextColor(getKeyBackground(key))}`}
+              )} ${getKeyColor(key)}`}
             >
               {key}
             </button>
@@ -298,7 +287,7 @@ export default function WordleGame({ gameData }: { gameData: GameData }) {
         <div className="flex justify-center">
           <button
             onClick={() => handleKeyPress("ENTER")}
-            className="px-2 h-14 bg-gray-200 m-0.5 rounded-md flex items-center justify-center font-bold text-sm"
+            className="px-2 h-14 bg-blue-500 m-0.5 rounded-md flex items-center justify-center font-bold text-sm"
           >
             ENTER
           </button>
@@ -306,18 +295,18 @@ export default function WordleGame({ gameData }: { gameData: GameData }) {
             <button
               key={key}
               onClick={() => handleKeyPress(key)}
-              className={`w-10 h-14 m-0.5 rounded-md flex items-center justify-center font-bold text-xl transition-colors ${getKeyBackground(
+              className={`w-10 h-14 m-0.5 rounded-md flex items-center justify-center font-bold text-xl transition-colors ${getKeyColor(
                 key
-              )} ${getTextColor(getKeyBackground(key))}`}
+              )} ${getKeyColor(key)}`}
             >
               {key}
             </button>
           ))}
           <button
             onClick={() => handleKeyPress("BACKSPACE")}
-            className="w-10 h-14 bg-gray-200 m-0.5 rounded-md flex items-center justify-center font-bold"
+            className="w-16 h-14 bg-blue-500 m-0.5 rounded-md flex items-center justify-center font-bold"
           >
-            <X size={20} />
+            <Delete size={24} />
           </button>
         </div>
       </div>
