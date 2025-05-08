@@ -2,102 +2,179 @@
 
 import { useState } from "react";
 import { X } from "lucide-react";
+import { submitGuess } from "@/app/pages/wordle/functions";
 
 type CellState = "correct" | "present" | "absent" | "empty";
+type GuessResult = { letter: string; state: string };
 
-export default function WordleGame({
-  targetWord = "APPLE",
-}: {
-  targetWord?: string;
-}) {
-  const [board, setBoard] = useState(
-    Array(6)
+type GameData = {
+  id: string;
+  status: string;
+  guesses: Array<{
+    word: string;
+    result: Array<GuessResult>;
+  }>;
+};
+
+export default function WordleGame({ gameData }: { gameData: GameData }) {
+  // Initialize board from gameData
+  const [board, setBoard] = useState(() => {
+    // Create empty board
+    const emptyBoard = Array(6)
       .fill(null)
-      .map(() => Array(5).fill(""))
-  );
-  const [currentRow, setCurrentRow] = useState(0);
+      .map(() => Array(5).fill(""));
+
+    // Fill in the guesses from gameData
+    gameData.guesses.forEach((guess, rowIndex) => {
+      const letters = guess.word.split("");
+      letters.forEach((letter, colIndex) => {
+        emptyBoard[rowIndex][colIndex] = letter;
+      });
+    });
+
+    return emptyBoard;
+  });
+
+  // Set current row based on number of guesses
+  const [currentRow, setCurrentRow] = useState(gameData.guesses.length);
   const [currentCol, setCurrentCol] = useState(0);
 
-  const [cellStates, setCellStates] = useState<CellState[][]>(
-    Array(6)
-      .fill("")
-      .map(() => Array(5).fill("empty"))
-  );
-  const [keyStates, setKeyStates] = useState<Record<string, CellState>>({});
-  const [gameOver, setGameOver] = useState(false);
+  // Initialize cell states from gameData
+  const [cellStates, setCellStates] = useState<CellState[][]>(() => {
+    // Create empty cell states
+    const emptyCellStates = Array(6)
+      .fill(null)
+      .map(() => Array(5).fill("empty" as CellState));
 
-  const checkGuess = (row: number) => {
+    // Fill in the cell states from gameData
+    gameData.guesses.forEach((guess, rowIndex) => {
+      guess.result.forEach((result, colIndex) => {
+        emptyCellStates[rowIndex][colIndex] = result.state as CellState;
+      });
+    });
+
+    return emptyCellStates;
+  });
+
+  // Initialize key states based on cell states
+  const [keyStates, setKeyStates] = useState<Record<string, CellState>>(() => {
+    const initialKeyStates: Record<string, CellState> = {};
+
+    gameData.guesses.forEach((guess) => {
+      guess.result.forEach((result, index) => {
+        const letter = guess.word[index];
+        const state = result.state as CellState;
+
+        // Only update if the new state is "better" than the existing one
+        if (
+          !initialKeyStates[letter] ||
+          (initialKeyStates[letter] === "absent" &&
+            (state === "present" || state === "correct")) ||
+          (initialKeyStates[letter] === "present" && state === "correct")
+        ) {
+          initialKeyStates[letter] = state;
+        }
+      });
+    });
+
+    return initialKeyStates;
+  });
+
+  // Set game over if status is "won" or "lost"
+  const [gameOver, setGameOver] = useState(
+    gameData.status === "won" || gameData.status === "lost"
+  );
+
+  // State for loading status during API calls
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  // State for error messages
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // Submit guess to the server
+  const submitGuessToServer = async (row: number) => {
     const guess = board[row].join("");
     if (guess.length !== 5) return;
 
-    // Create a copy of the cell states
-    const newCellStates = [...cellStates];
-    const newKeyStates = { ...keyStates };
+    // Set loading state
+    setIsSubmitting(true);
+    setErrorMessage(null);
 
-    // First pass: mark correct letters
-    const targetLetters = targetWord.split("");
-    const remainingTargetLetters = [...targetLetters];
+    try {
+      // Call the server function to submit the guess
+      const updatedGame = await submitGuess(gameData.id, guess);
 
-    // First pass: find exact matches (correct position)
-    for (let i = 0; i < 5; i++) {
-      if (board[row][i] === targetLetters[i]) {
-        newCellStates[row][i] = "correct";
-        newKeyStates[board[row][i]] = "correct";
-        // Remove this letter from remaining target letters
-        const index = remainingTargetLetters.indexOf(board[row][i]);
-        if (index > -1) {
-          remainingTargetLetters.splice(index, 1);
-        }
-      }
-    }
+      // Update the game state with the server response
+      if (updatedGame) {
+        // Get the latest guess result
+        const latestGuess = updatedGame.guesses[updatedGame.guesses.length - 1];
+        const guessResult = latestGuess.result as Array<{
+          letter: string;
+          state: string;
+        }>;
 
-    // Second pass: find partial matches (present but wrong position)
-    for (let i = 0; i < 5; i++) {
-      if (newCellStates[row][i] !== "correct") {
-        const letter = board[row][i];
-        const index = remainingTargetLetters.indexOf(letter);
-
-        if (index > -1) {
-          // Letter is present but in wrong position
-          newCellStates[row][i] = "present";
-          // Only update key state if it's not already marked as correct
-          if (newKeyStates[letter] !== "correct") {
-            newKeyStates[letter] = "present";
+        // Update cell states for the current row
+        const newCellStates = [...cellStates];
+        guessResult.forEach(
+          (result: { letter: string; state: string }, index: number) => {
+            newCellStates[row][index] = result.state as CellState;
           }
-          // Remove this letter from remaining target letters
-          remainingTargetLetters.splice(index, 1);
-        } else {
-          // Letter is not in the target word
-          newCellStates[row][i] = "absent";
-          // Only update key state if it's not already marked as correct or present
-          if (!newKeyStates[letter]) {
-            newKeyStates[letter] = "absent";
+        );
+        setCellStates(newCellStates);
+
+        // Update key states
+        const newKeyStates = { ...keyStates };
+        guessResult.forEach(
+          (result: { letter: string; state: string }, index: number) => {
+            const letter = guess[index];
+            const state = result.state as CellState;
+
+            // Only update if the new state is "better" than the existing one
+            if (
+              !newKeyStates[letter] ||
+              (newKeyStates[letter] === "absent" &&
+                (state === "present" || state === "correct")) ||
+              (newKeyStates[letter] === "present" && state === "correct")
+            ) {
+              newKeyStates[letter] = state;
+            }
           }
+        );
+        setKeyStates(newKeyStates);
+
+        // Check if the game is over
+        if (updatedGame.status === "won") {
+          setGameOver(true);
+          alert("Congratulations! You won!");
+        } else if (updatedGame.status === "lost") {
+          setGameOver(true);
+          alert("Game over! You've used all your guesses.");
         }
+
+        // Move to the next row
+        setCurrentRow(currentRow + 1);
+        setCurrentCol(0);
       }
-    }
-
-    setCellStates(newCellStates);
-    setKeyStates(newKeyStates);
-
-    // Check if the game is won
-    if (guess === targetWord) {
-      setGameOver(true);
-      alert("Congratulations! You won!");
-    } else if (row === 5) {
-      setGameOver(true);
-      alert(`Game over! The word was ${targetWord}`);
+    } catch (error) {
+      // Handle errors
+      console.error("Error submitting guess:", error);
+      setErrorMessage(
+        error instanceof Error ? error.message : "An error occurred"
+      );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleKeyPress = (key: string) => {
-    if (currentRow >= 6) return;
+    // Prevent input if game is over or submitting
+    if (gameOver || isSubmitting || currentRow >= 6) return;
+
+    // Clear any previous error message
+    if (errorMessage) setErrorMessage(null);
 
     if (key === "ENTER") {
       if (currentCol === 5) {
-        checkGuess(currentRow);
-        setCurrentRow(currentRow + 1);
-        setCurrentCol(0);
+        submitGuessToServer(currentRow);
       }
     } else if (key === "BACKSPACE") {
       if (currentCol > 0) {
@@ -150,6 +227,27 @@ export default function WordleGame({
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-white p-4">
+      {/* Game status */}
+      {gameData.status !== "active" && (
+        <div className="mb-4 p-2 bg-blue-100 text-blue-800 rounded">
+          Game status: {gameData.status}
+        </div>
+      )}
+
+      {/* Error message */}
+      {errorMessage && (
+        <div className="mb-4 p-2 bg-red-100 text-red-800 rounded">
+          {errorMessage}
+        </div>
+      )}
+
+      {/* Loading indicator */}
+      {isSubmitting && (
+        <div className="mb-4 p-2 bg-gray-100 text-gray-800 rounded">
+          Submitting guess...
+        </div>
+      )}
+
       <div className="mb-8">
         {/* Game board */}
         {board.map((row, rowIndex) => (

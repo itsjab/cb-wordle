@@ -43,7 +43,7 @@ model Game {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   status        String   // Game status (e.g., "in-progress", "completed")
-  userId        String   @unique // Every credential is linked to a specific user
+  userId        String 
   user          User     @relation(fields: [userId], references: [id])
   wordle        String   // The word to be guessed
   guesses       Guess[]  // Relationship: One game can have many guesses

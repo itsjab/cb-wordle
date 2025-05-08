@@ -1,10 +1,6 @@
 import { RequestInfo } from "rwsdk/worker";
-import WordleGame from "@/app/components/wordle/game";
+import { WordlePage } from "@/app/pages/wordle/WordlePage";
 
-export function Home({ ctx }: RequestInfo) {
-  return (
-    <main>
-      <WordleGame />
-    </main>
-  );
+export function Home(requestInfo: RequestInfo) {
+  return <WordlePage {...requestInfo} />;
 }
