@@ -8,6 +8,8 @@ import {
   AlertDialogTitle,
 } from "@/app/components/ui/alert-dialog";
 
+import { link } from "@/app/shared/links";
+
 export function ResultDialog({
   status,
   onReset,
@@ -31,7 +33,11 @@ export function ResultDialog({
           )}
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogAction onClick={onReset}>Play Again</AlertDialogAction>
+          <AlertDialogAction asChild>
+            <a href={link("/leader-board")}>View leader board</a>
+          </AlertDialogAction>
+          {/* Remove before wedding */}
+          <AlertDialogAction onClick={onReset}>Play again</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

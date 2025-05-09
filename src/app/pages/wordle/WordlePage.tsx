@@ -31,9 +31,5 @@ export async function WordlePage() {
     })),
   };
 
-  return (
-    <main>
-      <WordleGame gameData={gameData} />
-    </main>
-  );
+  return <WordleGame gameData={gameData} />;
 }

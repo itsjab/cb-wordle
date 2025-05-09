@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Delete } from "lucide-react";
 import { submitGuess, archiveGame } from "@/app/pages/wordle/functions";
-import { Button } from "../ui/button";
 
 import { Jab } from "@prisma/client";
 import { ResultDialog } from "./result-dialog";
@@ -211,7 +210,7 @@ export default function WordleGame({ gameData }: { gameData: GameData }) {
   };
 
   return (
-    <div className="flex flex-col items-center justify-end min-h-svh bg-white">
+    <div className="flex flex-col items-center bg-white">
       {gameData.status !== "active" && (
         <ResultDialog status={gameData.status} onReset={handleGameReset} />
       )}

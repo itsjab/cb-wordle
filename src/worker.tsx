@@ -2,6 +2,7 @@ import { defineApp, ErrorResponse } from "rwsdk/worker";
 import { route, render, prefix } from "rwsdk/router";
 import { Document } from "@/app/Document";
 import { Home } from "@/app/pages/Home";
+import { LeaderBoard } from "@/app/pages/wordle/leader-board";
 import { setCommonHeaders } from "@/app/headers";
 import { userRoutes } from "@/app/pages/user/routes";
 import { sessions, setupSessionStore } from "./session/store";
@@ -57,6 +58,17 @@ export default defineApp([
         }
       },
       Home,
+    ]),
+    route("/leader-board", [
+      ({ ctx }) => {
+        if (!ctx.user) {
+          return new Response(null, {
+            status: 302,
+            headers: { Location: "/user/login" },
+          });
+        }
+      },
+      LeaderBoard,
     ]),
     prefix("/user", userRoutes),
   ]),

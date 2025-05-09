@@ -169,6 +169,55 @@ export async function getJabs() {
   return jabs;
 }
 
+export async function getLeaderboard() {
+  const games = await db.game.findMany({
+    where: {
+      status: "won",
+    },
+    include: {
+      user: true,
+      guesses: true,
+    },
+    orderBy: {
+      guesses: {
+        _count: "asc",
+      },
+    },
+  });
+
+  // Prepare leaderboard entries
+  const entries = games.map((game) => {
+    const turns = game.guesses.length;
+    if (turns === 1) {
+      return {
+        username: game.user.username,
+        turns,
+        timeSeconds: 0,
+        status: game.status,
+        gameId: game.id,
+        ranking: null, // will be set after sorting
+      };
+    }
+    const first = game.guesses[0].createdAt;
+    const last = game.guesses[turns - 1].createdAt;
+    return {
+      username: game.user.username,
+      turns,
+      timeSeconds: (last.getTime() - first.getTime()) / 1000,
+      status: game.status,
+      gameId: game.id,
+      ranking: null, // will be set after sorting
+    };
+  });
+
+  return entries.sort((a, b) => {
+    if (a.turns !== b.turns) {
+      return a.turns - b.turns; // Sort by turns first
+    }
+    return a.timeSeconds - b.timeSeconds; // Then sort by time
+  })
+}
+
 function calculateGuessResult(
   guessWord: string,
   targetWord: string

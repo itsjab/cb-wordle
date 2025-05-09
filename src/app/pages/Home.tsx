@@ -2,11 +2,15 @@ import { WordlePage } from "@/app/pages/wordle/WordlePage";
 
 import { Toaster } from "@/app/components/ui/sonner";
 
+import GameLayout from "./wordle/layout";
+
 export function Home() {
   return (
-    <main className="px-2">
-      <WordlePage />
+    <>
+      <GameLayout>
+        <WordlePage />
+      </GameLayout>
       <Toaster position="top-center" />
-    </main>
+    </>
   );
 }
