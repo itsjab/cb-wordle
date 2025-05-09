@@ -29,6 +29,7 @@
   "dependencies": {
     "@prisma/adapter-d1": "~6.5.0",
     "@prisma/client": "~6.5.0",
+    "@radix-ui/react-alert-dialog": "^1.1.13",
     "@radix-ui/react-slot": "^1.2.2",
     "@simplewebauthn/browser": "^13.1.0",
     "@simplewebauthn/server": "^13.1.1",

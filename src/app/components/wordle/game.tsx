@@ -6,6 +6,7 @@ import { submitGuess, archiveGame } from "@/app/pages/wordle/functions";
 import { Button } from "../ui/button";
 
 import { Jab } from "@prisma/client";
+import { ResultDialog } from "./result-dialog";
 import { toast } from "sonner";
 
 type CellState = "correct" | "present" | "absent" | "empty";
@@ -213,7 +214,7 @@ export default function WordleGame({ gameData }: { gameData: GameData }) {
     <div className="flex flex-col items-center justify-end min-h-svh bg-white">
       {/* Add the game status message and reset button to the return statement
       Add this after the game board div and before the keyboard div: */}
-      {gameData.status !== "active" && (
+      {/* {gameData.status !== "active" && (
         <div className="mb-8 text-center">
           <div
             className={`text-2xl font-bold mb-2 ${
@@ -224,6 +225,9 @@ export default function WordleGame({ gameData }: { gameData: GameData }) {
           </div>
           <Button onClick={handleGameReset}>Play Again</Button>
         </div>
+      )} */}
+      {gameData.status !== "active" && (
+        <ResultDialog status={gameData.status} onReset={handleGameReset} />
       )}
 
       <div className="mb-8">
@@ -273,7 +277,7 @@ export default function WordleGame({ gameData }: { gameData: GameData }) {
             </button>
           ))}
         </div>
-        <div className="flex justify-center">
+        <div className="flex justify-center mb-1">
           <button
             onClick={() => handleKeyPress("ENTER")}
             className="text-xs px-2 h-12 bg-blue-500 m-0.5 rounded-md flex items-center justify-center font-bold"
