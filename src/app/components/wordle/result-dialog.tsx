@@ -31,6 +31,9 @@ export function ResultDialog({
           {status !== "won" && (
             <AlertDialogDescription>{description}</AlertDialogDescription>
           )}
+          <video controls autoPlay>
+            <source src="/videos/free-shavacados.mp4" type="video/mp4" />
+          </video>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogAction asChild>
