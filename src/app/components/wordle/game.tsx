@@ -212,25 +212,11 @@ export default function WordleGame({ gameData }: { gameData: GameData }) {
 
   return (
     <div className="flex flex-col items-center justify-end min-h-svh bg-white">
-      {/* Add the game status message and reset button to the return statement
-      Add this after the game board div and before the keyboard div: */}
-      {/* {gameData.status !== "active" && (
-        <div className="mb-8 text-center">
-          <div
-            className={`text-2xl font-bold mb-2 ${
-              gameData.status === "won" ? "text-green-600" : "text-red-600"
-            }`}
-          >
-            {gameData.status === "won" ? "You won! 🎉" : "Game over!"}
-          </div>
-          <Button onClick={handleGameReset}>Play Again</Button>
-        </div>
-      )} */}
       {gameData.status !== "active" && (
         <ResultDialog status={gameData.status} onReset={handleGameReset} />
       )}
 
-      <div className="mb-8">
+      <div className="mb-4">
         {/* Game board */}
         {board.map((row, rowIndex) => (
           <div key={rowIndex} className="flex">

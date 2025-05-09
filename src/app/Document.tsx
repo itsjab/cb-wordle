@@ -1,7 +1,5 @@
 import styles from "./styles.css?url";
 
-import { Toaster } from "@/app/components/ui/sonner";
-
 export const Document: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => (
@@ -15,7 +13,6 @@ export const Document: React.FC<{ children: React.ReactNode }> = ({
     </head>
     <body>
       <div id="root">{children}</div>
-      <Toaster position="top-center" />
       <script>import("/src/client.tsx")</script>
     </body>
   </html>
