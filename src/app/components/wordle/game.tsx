@@ -131,6 +131,7 @@ export default function WordleGame({ gameData }: { gameData: GameData }) {
         if (updatedGame.status === "active" && gameData.jabs.length > 0) {
           toast.message(gameData.jabs[jabCount].headline, {
             description: gameData.jabs[jabCount].description,
+            duration: 6000,
           });
           const newJabCount =
             jabCount < gameData.jabs.length - 1 ? jabCount + 1 : 0;
