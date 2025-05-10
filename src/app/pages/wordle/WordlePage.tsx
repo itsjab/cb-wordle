@@ -9,6 +9,7 @@ export async function WordlePage() {
     id: game.id,
     status: game.status,
     jabs,
+    wordle: game.wordle,
     guesses: game.guesses.map((guess) => ({
       word: guess.guess,
       result: guess.result as Array<{ letter: string; state: string }>,

@@ -94,7 +94,7 @@ export function ResultDialog({
                 </p>
                 <p className="text-sm text-muted-foreground">
                   The word was{" "}
-                  <span className="font-bold">{gameData.guesses[0].word}</span>.
+                  <span className="font-bold">{gameData.wordle}</span>.
                 </p>
               </div>
               <p className="text-sm text-muted-foreground">

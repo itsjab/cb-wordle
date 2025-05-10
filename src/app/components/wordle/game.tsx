@@ -15,6 +15,7 @@ export type GameData = {
   id: string;
   status: string;
   jabs: Jab[];
+  wordle: string;
   guesses: Array<{
     word: string;
     result: Array<GuessResult>;
