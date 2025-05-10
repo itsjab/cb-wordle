@@ -28,7 +28,7 @@ model User {
 model Credential {
   id            String   @id @default(uuid())
   userId        String   @unique // Every credential is linked to a specific user
-  user          User     @relation(fields: [userId], references: [id])
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt     DateTime @default(now())
   credentialId  String   @unique // WebAuthn credential identifier
   publicKey     Bytes
@@ -45,7 +45,7 @@ model Game {
   status        String
   isArchived    Boolean  @default(false)
   userId        String 
-  user          User     @relation(fields: [userId], references: [id])
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   wordle        String   // The word to be guessed
   guesses       Guess[]  // Relationship: One game can have many guesses
 }
@@ -53,7 +53,7 @@ model Game {
 model Guess {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
-  game      Game     @relation(fields: [gameId], references: [id])
+  game      Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
   gameId    String
   guess     String   // The guessed 5-letter word
   attempt   Int      // Attempt number (1-6)
