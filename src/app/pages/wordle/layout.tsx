@@ -9,7 +9,7 @@ export default function GameLayout({
 }) {
   return (
     <>
-      <header className="flex p-2 justify-between h-10 mb-4 items-center border-b border-b-gray-500">
+      <header className="sticky bg-white z-10 top-0 flex p-2 justify-between h-10 mb-4 items-center border-b border-b-gray-500">
         <a href={link("/")}>
           <span className="font-fancy font-bold mr-1">C & B Wordle</span>
         </a>
