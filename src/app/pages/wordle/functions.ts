@@ -13,6 +13,14 @@ export async function getOrCreateActiveGame() {
     throw new Error("User not authenticated");
   }
 
+  const previousGame = await db.game.findFirst({
+    where: {
+      userId: ctx.user.id,
+      isArchived: true,
+    },
+  });
+  const hasUserPlayedBefore = !!previousGame;
+
   const game = await db.game.findFirst({
     where: {
       userId: ctx.user.id,
@@ -39,13 +47,16 @@ export async function getOrCreateActiveGame() {
     "IVORY",
     "JELLY",
   ];
+  const defaultWord = "TERPS";
   const randomWord = words[Math.floor(Math.random() * words.length)];
+
+  const wordToGuess = hasUserPlayedBefore ? randomWord : defaultWord;
 
   return db.game.create({
     data: {
       userId: ctx.user.id,
       status: "active",
-      wordle: randomWord,
+      wordle: wordToGuess,
     },
     include: {
       guesses: true,
@@ -215,7 +226,7 @@ export async function getLeaderboard() {
       return a.turns - b.turns; // Sort by turns first
     }
     return a.timeSeconds - b.timeSeconds; // Then sort by time
-  })
+  });
 }
 
 function calculateGuessResult(

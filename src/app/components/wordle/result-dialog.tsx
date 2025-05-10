@@ -100,9 +100,12 @@ export function ResultDialog({
               <p className="text-sm text-muted-foreground">
                 Here is a little something for you:
               </p>
+              <hr />
             </>
           )}
-          <AlertDialogDescription>{description}</AlertDialogDescription>
+          <AlertDialogDescription className="text-lg">
+            {description}
+          </AlertDialogDescription>
           <video controls autoPlay playsInline>
             <source src={video} type="video/mp4" />
           </video>
