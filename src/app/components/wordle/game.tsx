@@ -266,7 +266,7 @@ export default function WordleGame({ gameData }: { gameData: GameData }) {
         <div className="flex justify-center mb-1">
           <button
             onClick={() => handleKeyPress("ENTER")}
-            className="text-xs px-2 h-12 bg-pink-300 m-0.5 rounded-md flex items-center justify-center font-bold"
+            className="text-xs px-2 h-12 bg-pink-300 text-neutral-800 m-0.5 rounded-md flex items-center justify-center font-bold"
           >
             ENTER
           </button>
@@ -283,7 +283,7 @@ export default function WordleGame({ gameData }: { gameData: GameData }) {
           ))}
           <button
             onClick={() => handleKeyPress("BACKSPACE")}
-            className="h-12 px-2 bg-pink-300 m-0.5 rounded-md flex items-center justify-center font-bold"
+            className="h-12 px-2 bg-pink-300 text-neutral-800 m-0.5 rounded-md flex items-center justify-center font-bold"
           >
             <Delete size={24} />
           </button>

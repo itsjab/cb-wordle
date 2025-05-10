@@ -1,4 +1,3 @@
-import { MAX_SESSION_DURATION } from "rwsdk/auth";
 import { DurableObject } from "cloudflare:workers";
 
 export interface Session {
@@ -45,19 +44,7 @@ export class SessionDurableObject extends DurableObject {
       };
     }
 
-    if (session.createdAt + MAX_SESSION_DURATION < Date.now()) {
-      await this.revokeSession();
-      return {
-        error: "Session expired",
-      };
-    }
-
     this.session = session;
     return { value: session };
-  }
-
-  async revokeSession() {
-    await this.ctx.storage.delete("session");
-    this.session = undefined;
   }
 }

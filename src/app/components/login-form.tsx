@@ -82,7 +82,7 @@ export function LoginForm() {
           <div className="space-y-2">
             <Input
               id="username"
-              placeholder="Word Smith"
+              placeholder="Wordle Smith"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               className="w-full"
