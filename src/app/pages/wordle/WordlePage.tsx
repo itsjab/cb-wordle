@@ -3,23 +3,7 @@ import { getJabs, getOrCreateActiveGame } from "./functions";
 
 export async function WordlePage() {
   const game = await getOrCreateActiveGame();
-  // const jabs = await getJabs();
-  const jabs = [
-    {
-      id: "1",
-      headline: "Test 1",
-      description: "Test 1 description",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      id: "2",
-      headline: "Test 2",
-      description: "Test 2 description",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-  ];
+  const jabs = await getJabs();
 
   const gameData = {
     id: game.id,

@@ -128,7 +128,7 @@ export default function WordleGame({ gameData }: { gameData: GameData }) {
         setCurrentRow(currentRow + 1);
         setCurrentCol(0);
 
-        if (updatedGame.status === "active") {
+        if (updatedGame.status === "active" && gameData.jabs.length > 0) {
           toast.message(gameData.jabs[jabCount].headline, {
             description: gameData.jabs[jabCount].description,
           });
