@@ -42,7 +42,6 @@ export function LoginForm() {
         setResult("Registration failed");
       } else {
         setResult("Registration successful!");
-        // Redirect to home page after successful registration
         window.location.href = "/";
       }
     } catch (err) {
