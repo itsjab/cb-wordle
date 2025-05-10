@@ -8,7 +8,7 @@ export async function LeaderBoard() {
   return (
     <GameLayout>
       <>
-        <h2 className="text-xl font-bold mb-4">Leaderboard</h2>
+        <h2 className="text-xl font-bold mb-4 ml-2">Leaderboard</h2>
         <div className="overflow-x-auto">
           <table className="min-w-full border border-gray-300">
             <thead>

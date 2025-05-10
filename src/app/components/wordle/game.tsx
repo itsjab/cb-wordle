@@ -11,7 +11,7 @@ import { toast } from "sonner";
 type CellState = "correct" | "present" | "absent" | "empty";
 type GuessResult = { letter: string; state: string };
 
-type GameData = {
+export type GameData = {
   id: string;
   status: string;
   jabs: Jab[];
@@ -212,7 +212,7 @@ export default function WordleGame({ gameData }: { gameData: GameData }) {
   return (
     <div className="flex flex-col items-center bg-white">
       {gameData.status !== "active" && (
-        <ResultDialog status={gameData.status} onReset={handleGameReset} />
+        <ResultDialog gameData={gameData} onReset={handleGameReset} />
       )}
 
       <div className="mb-4">
