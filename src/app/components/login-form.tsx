@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { startRegistration } from "@simplewebauthn/browser";
 import {
+  checkIfUsernameIsTaken,
   finishPasskeyRegistration,
   startPasskeyRegistration,
 } from "@/app/pages/user/functions";
@@ -30,6 +31,13 @@ export function LoginForm() {
     try {
       setIsRegistering(true);
       setError("");
+
+      const isUsernameTaken = await checkIfUsernameIsTaken(username);
+
+      if (isUsernameTaken) {
+        setError("Username already taken. Please choose another.");
+        return;
+      }
 
       const options = await startPasskeyRegistration(username);
 

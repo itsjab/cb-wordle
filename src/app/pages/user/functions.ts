@@ -24,6 +24,20 @@ function getWebAuthnConfig(request: Request) {
   };
 }
 
+export async function checkIfUsernameIsTaken(username: string) {
+  const user = await db.user.findUnique({
+    where: {
+      username,
+    },
+  });
+
+  if (!user) {
+    return false;
+  }
+
+  return true;
+}
+
 export async function startPasskeyRegistration(username: string) {
   const { rpName, rpID } = getWebAuthnConfig(requestInfo.request);
   const { headers } = requestInfo;
@@ -62,7 +76,7 @@ export async function startPasskeyLogin() {
 
 export async function finishPasskeyRegistration(
   username: string,
-  registration: RegistrationResponseJSON,
+  registration: RegistrationResponseJSON
 ) {
   const { request, headers } = requestInfo;
   const { origin } = new URL(request.url);
