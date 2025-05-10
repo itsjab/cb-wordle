@@ -1,9 +1,27 @@
 import GameLayout from "./layout";
 
+import { Button } from "@/app/components/ui/button";
+
 import { getLeaderboard } from "./functions";
 
 export async function LeaderBoard() {
   const entries = await getLeaderboard();
+
+  if (!entries || entries.length === 0) {
+    return (
+      <GameLayout>
+        <div className="text-center">
+          <h2 className="text-xl font-bold mb-4">Leaderboard</h2>
+          <p>No winners yet! Start playing</p>
+          <Button asChild>
+            <a href="/" className="mt-4">
+              Play Now
+            </a>
+          </Button>
+        </div>
+      </GameLayout>
+    );
+  }
 
   return (
     <GameLayout>
