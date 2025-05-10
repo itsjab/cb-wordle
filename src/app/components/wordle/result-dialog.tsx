@@ -86,7 +86,6 @@ export function ResultDialog({
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
-          <AlertDialogDescription>{description}</AlertDialogDescription>
           {gameData.status === "won" && (
             <>
               <div>
@@ -103,6 +102,7 @@ export function ResultDialog({
               </p>
             </>
           )}
+          <AlertDialogDescription>{description}</AlertDialogDescription>
           <video controls autoPlay playsInline>
             <source src={video} type="video/mp4" />
           </video>
