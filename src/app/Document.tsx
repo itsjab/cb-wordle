@@ -10,6 +10,11 @@ export const Document: React.FC<{ children: React.ReactNode }> = ({
       <title>C&B Wordle | ❤️</title>
       <link rel="modulepreload" href="/src/client.tsx" />
       <link rel="stylesheet" href={styles} />
+      <meta
+        name="description"
+        content="Play Cathi and Brian's favorite game, with a wedding twist."
+      />
+      <meta name="title" content="C&B Wordle | ❤️" />
     </head>
     <body>
       <div id="root">{children}</div>
