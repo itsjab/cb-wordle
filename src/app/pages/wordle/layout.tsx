@@ -1,4 +1,4 @@
-import { ListOrdered } from "lucide-react";
+import { Trophy } from "lucide-react";
 
 import { link } from "@/app/shared/links";
 
@@ -9,10 +9,12 @@ export default function GameLayout({
 }) {
   return (
     <>
-      <header className="flex p-2 justify-between h-10 mb-4 bg-pink-400">
-        <a href={link("/")}>C&B Wordle</a>
+      <header className="flex p-2 justify-between h-10 mb-4 items-center border-b border-b-gray-500">
+        <a href={link("/")}>
+          <span className="font-fancy font-bold mr-1">C & B</span>
+        </a>
         <a href={link("/leader-board")}>
-          <ListOrdered size={24} />
+          <Trophy size={20} className="text-pink-500" />
         </a>
       </header>
       <main className="min-h-svh">{children}</main>
