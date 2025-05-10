@@ -36,16 +36,10 @@ export async function getOrCreateActiveGame() {
   }
 
   const words = [
-    "APPLE",
-    "BEACH",
-    "CLOUD",
-    "DANCE",
-    "EARTH",
-    "FLAME",
-    "GRAPE",
-    "HOUSE",
-    "IVORY",
-    "JELLY",
+    "TESLA",
+    "MIAMI",
+    "CRUMB",
+    "CROSS"
   ];
   const defaultWord = "TERPS";
   const randomWord = words[Math.floor(Math.random() * words.length)];
